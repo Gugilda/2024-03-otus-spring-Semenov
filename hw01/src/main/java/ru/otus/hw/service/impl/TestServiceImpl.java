@@ -6,6 +6,9 @@ import ru.otus.hw.domain.Question;
 import ru.otus.hw.service.IOService;
 import ru.otus.hw.service.TestService;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
 
@@ -15,14 +18,16 @@ public class TestServiceImpl implements TestService {
 
     @Override
     public void executeTest() {
+        List<Question> questionList = questionDao.findAll();
         ioService.printLine("");
         ioService.printFormattedLine("Please answer the questions below%n");
         // Получить вопросы из дао и вывести их с вариантами ответов
 
-        for (Question question : questionDao.findAll()) {
+        for (Question question : questionList) {
             ioService.printLine(question.text());
             if (question.answers() != null) {
-                question.answers().forEach(a -> ioService.printLine("\t" + a.text()));
+                AtomicInteger count = new AtomicInteger(1);
+                question.answers().forEach(a -> ioService.printLine("\t" + count.getAndIncrement() + ". " + a.text()));
             }
             ioService.printLine("");
         }
