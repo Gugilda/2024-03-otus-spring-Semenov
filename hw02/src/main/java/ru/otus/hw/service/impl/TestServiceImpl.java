@@ -23,16 +23,23 @@ public class TestServiceImpl implements TestService {
         ioService.printFormattedLine("Please answer the questions below%n");
         var questions = questionDao.findAll();
         var testResult = new TestResult(student);
-        int counter = 1;
+        int questionCounter = 1;
 
         for (var question : questions) {
-            ioService.printLine(counter++ + ". " + question.text());
+            ioService.printLine(questionCounter++ + ". " + question.text());
+            int answerCounter = 1;
+            for (var answer : question.answers()) {
+                ioService.printLine("\t" + answerCounter++ + ". " + answer.text());
+            }
             String studentAnswer = ioService.readString();
-            var isAnswerValid = question.answers().stream().filter(Answer::isCorrect)
-                    .anyMatch(a -> a.text().equalsIgnoreCase(studentAnswer));
-            testResult.applyAnswer(question, isAnswerValid);
+            try {
+                int answerIndex = Integer.parseInt(studentAnswer);
+                var isAnswerValid = question.answers().get(answerIndex).isCorrect();
+                testResult.applyAnswer(question, isAnswerValid);
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                testResult.applyAnswer(question, false);
+            }
         }
-
         return testResult;
     }
 }
