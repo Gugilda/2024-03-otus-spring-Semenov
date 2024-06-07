@@ -17,7 +17,7 @@ import static org.mockito.MockitoAnnotations.openMocks;
 
 class CsvQuestionDaoTest {
 
-    public static final String TEST_PROPERTIES = "testQuestions.csv";
+    public static final String TEST_PROPERTIES = "resources/testQuestions.csv";
 
     @InjectMocks
     CsvQuestionDao csvQuestionDao;

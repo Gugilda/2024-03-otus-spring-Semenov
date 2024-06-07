@@ -3,7 +3,6 @@ package ru.otus.hw.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.hw.dao.QuestionDao;
-import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Student;
 import ru.otus.hw.domain.TestResult;
 import ru.otus.hw.service.IOService;
@@ -13,6 +12,8 @@ import ru.otus.hw.service.TestService;
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
 
+    public static final String ERROR_MESSAGE = "Please, enter correct answer";
+
     private final IOService ioService;
 
     private final QuestionDao questionDao;
@@ -20,7 +21,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestResult executeTestFor(Student student) {
         ioService.printLine("");
-        ioService.printFormattedLine("Please answer the questions below%n");
+        ioService.printFormattedLine("Please, answer the questions below%n");
         var questions = questionDao.findAll();
         var testResult = new TestResult(student);
         int questionCounter = 1;
@@ -31,14 +32,9 @@ public class TestServiceImpl implements TestService {
             for (var answer : question.answers()) {
                 ioService.printLine("\t" + answerCounter++ + ". " + answer.text());
             }
-            String studentAnswer = ioService.readString();
-            try {
-                int answerIndex = Integer.parseInt(studentAnswer);
-                var isAnswerValid = question.answers().get(answerIndex).isCorrect();
-                testResult.applyAnswer(question, isAnswerValid);
-            } catch (IndexOutOfBoundsException | NumberFormatException e) {
-                testResult.applyAnswer(question, false);
-            }
+            int answerIndex = ioService.readIntForRange(1, question.answers().size(), ERROR_MESSAGE);
+            var isAnswerValid = question.answers().get(answerIndex - 1).isCorrect();
+            testResult.applyAnswer(question, isAnswerValid);
         }
         return testResult;
     }
