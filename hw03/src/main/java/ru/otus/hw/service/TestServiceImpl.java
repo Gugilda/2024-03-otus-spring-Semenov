@@ -10,6 +10,8 @@ import ru.otus.hw.domain.TestResult;
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
 
+    public static final String ERROR_MESSAGE_CODE = "TestService.answer.incorrect";
+
     private final LocalizedIOService ioService;
 
     private final QuestionDao questionDao;
@@ -31,7 +33,7 @@ public class TestServiceImpl implements TestService {
                 ioService.printLine("\t" + answerCounter++ + ". " + answer.text());
             }
             int answerIndex = ioService.readIntForRangeLocalized(1, question.answers().size(),
-                    "TestService.answer.incorrect");
+                    ERROR_MESSAGE_CODE);
             var isAnswerValid = question.answers().get(answerIndex - 1).isCorrect();
             testResult.applyAnswer(question, isAnswerValid);
         }
