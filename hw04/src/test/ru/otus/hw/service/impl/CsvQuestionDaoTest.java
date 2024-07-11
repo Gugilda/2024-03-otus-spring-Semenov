@@ -1,10 +1,12 @@
 package ru.otus.hw.service.impl;
 
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import ru.otus.hw.config.LocaleConfig;
+import ru.otus.hw.config.TestConfig;
 import ru.otus.hw.config.TestFileNameProvider;
 import ru.otus.hw.dao.CsvQuestionDao;
 import ru.otus.hw.domain.Question;
@@ -13,23 +15,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@SpringBootTest
 class CsvQuestionDaoTest {
 
-    public static final String TEST_PROPERTIES = "resources/testQuestions.csv";
+    public static final String TEST_PROPERTIES = "testQuestions.csv";
 
-    @InjectMocks
+    @Autowired
     CsvQuestionDao csvQuestionDao;
 
-    @Mock
+    @MockBean
     TestFileNameProvider fileNameProvider;
 
-    @BeforeEach
-    void setUp() {
-        openMocks(this);
-    }
+    @MockBean
+    LocaleConfig localeConfig;
 
+    @MockBean
+    TestConfig testConfig;
 
     @Test
     public void findAllTest() {

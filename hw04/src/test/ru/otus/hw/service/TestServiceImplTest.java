@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static ru.otus.hw.service.TestServiceImpl.ERROR_MESSAGE_CODE;
 
-@SpringBootTest(properties = "spring.shell.interactive.enabled=false")
+@SpringBootTest
 class TestServiceImplTest {
 
     @Autowired
