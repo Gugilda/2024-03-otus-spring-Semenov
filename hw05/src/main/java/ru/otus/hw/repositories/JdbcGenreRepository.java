@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -29,13 +28,9 @@ public class JdbcGenreRepository implements GenreRepository {
     public Optional<Genre> findById(long id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
-        Genre genre;
-        try {
-            genre = jdbc.queryForObject("select * from genres where id = :id", params, new GnreRowMapper());
-        } catch (EmptyResultDataAccessException ex) {
-            return Optional.empty();
-        }
-        return Optional.of(genre);
+        List<Genre> genres;
+        genres = jdbc.query("select * from genres where id = :id", params, new GnreRowMapper());
+        return Optional.of(genres.get(0));
     }
 
     private static class GnreRowMapper implements RowMapper<Genre> {

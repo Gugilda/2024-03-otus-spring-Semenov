@@ -32,9 +32,10 @@ public class JdbcBookRepository implements BookRepository {
         try {
             book = jdbc.queryForObject("SELECT books.id as id, books.title as title," +
                     " books.author_id as author_id, books.genre_id as genre_id, authors.full_name as full_name," +
-                    " genres.name as genre_name FROM books INNER JOIN authors ON" +
-                    " books.author_id = authors.id AND books.id = :id" +
-                    " INNER JOIN genres ON books.genre_id = genres.id", param, new BookRowMapper());
+                    " genres.name as genre_name FROM books JOIN authors ON" +
+                    " books.author_id = authors.id" +
+                    " INNER JOIN genres ON books.genre_id = genres.id" +
+                    " WHERE books.id = :id", param, new BookRowMapper());
         } catch (EmptyResultDataAccessException ex) {
             return Optional.empty();
         }
@@ -45,7 +46,7 @@ public class JdbcBookRepository implements BookRepository {
     public List<Book> findAll() {
         return jdbc.query("SELECT books.id as id, books.title as title," +
                 " books.author_id as author_id, books.genre_id as genre_id, authors.full_name as full_name," +
-                " genres.name as genre_name FROM books LEFT JOIN authors ON books.author_id = authors.id" +
+                " genres.name as genre_name FROM books JOIN authors ON books.author_id = authors.id" +
                 " LEFT JOIN genres ON books.genre_id = genres.id", new BookRowMapper());
     }
 
@@ -86,12 +87,12 @@ public class JdbcBookRepository implements BookRepository {
         params.addValue("title", book.getTitle());
         params.addValue("author_id", book.getAuthor().getId());
         params.addValue("genre_id", book.getGenre().getId());
-        Optional<Book> checkBook = findById(book.getId());
-        if (checkBook.isEmpty()) {
+        int result = jdbc.update(
+                "update books set title = :title, author_id = :author_id, genre_id = :genre_id where id = :id"
+                , params);
+        if (result != 1) {
             throw new EntityNotFoundException(String.format("Book with id = %s not found", book.getId()));
         }
-        jdbc.update("update books set title = :title, author_id = :author_id, genre_id = :genre_id where id = :id"
-                , params);
         return book;
     }
 
