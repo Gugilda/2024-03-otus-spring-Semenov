@@ -13,7 +13,7 @@ public class CommentRepositoryImpl implements CommentRepository {
     private EntityManager entityManager;
 
     @Override
-    public Optional<Comment> findById(String id) {
+    public Optional<Comment> findById(long id) {
         return Optional.ofNullable(entityManager.find(Comment.class, id));
     }
 
@@ -26,9 +26,11 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     @Override
-    public void deleteById(String id) {
-        Optional<Comment> removeComment = findById(id);
-        removeComment.ifPresent(entityManager::remove);
+    public void deleteById(long id) {
+        Comment comment = entityManager.find(Comment.class, id);
+        if (comment != null) {
+            entityManager.remove(comment);
+        }
     }
 
 

@@ -2,11 +2,13 @@ package ru.otus.hw.repositories;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import ru.otus.hw.models.Book;
+
+import static org.hibernate.jpa.SpecHints.HINT_SPEC_FETCH_GRAPH;
 
 @Repository
 public class BookRepositoryImpl implements BookRepository {
@@ -16,13 +18,15 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
-        return Optional.ofNullable(entityManager.find(Book.class, id));
+        var graph = entityManager.getEntityGraph("author-entity-graph");
+        return Optional.ofNullable(entityManager.find(Book.class, id, Map.of(HINT_SPEC_FETCH_GRAPH, graph)));
     }
 
     @Override
     public List<Book> findAll() {
-        TypedQuery<Book> query = entityManager.createQuery("select b from Book b", Book.class);
-        return query.getResultList();
+        return entityManager.createQuery("select b from Book b", Book.class)
+                .setHint(HINT_SPEC_FETCH_GRAPH, entityManager.getEntityGraph("author-entity-graph"))
+                .getResultList();
     }
 
     @Override
@@ -35,8 +39,10 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public void deleteById(long id) {
-        Optional<Book> removeBook = findById(id);
-        removeBook.ifPresent(entityManager::remove);
+        Book book = entityManager.find(Book.class, id);
+        if (book != null) {
+            entityManager.remove(book);
+        }
     }
 
     private Book insert(Book book) {
@@ -45,7 +51,14 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     private Book update(Book book) {
-        entityManager.merge(book);
-        return book;
+        Book existedBook = entityManager.find(Book.class, book.getId());
+        if (existedBook != null) {
+            existedBook.setAuthor(book.getAuthor());
+            existedBook.setGenre(book.getGenre());
+            existedBook.setComment(book.getComment());
+            existedBook.setTitle(book.getTitle());
+            entityManager.persist(book);
+        }
+        return existedBook;
     }
 }
