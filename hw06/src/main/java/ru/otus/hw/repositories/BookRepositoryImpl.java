@@ -51,14 +51,7 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     private Book update(Book book) {
-        Book existedBook = entityManager.find(Book.class, book.getId());
-        if (existedBook != null) {
-            existedBook.setAuthor(book.getAuthor());
-            existedBook.setGenre(book.getGenre());
-            existedBook.setComment(book.getComment());
-            existedBook.setTitle(book.getTitle());
-            entityManager.persist(book);
-        }
-        return existedBook;
+        entityManager.merge(book);
+        return book;
     }
 }
